@@ -1,0 +1,58 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+
+# Load the McDonald's dataset
+mcdonalds = pd.read_csv("mcdonalds.csv")
+
+# Convert categorical variables to numeric (Yes/No to 1/0)
+mcdonalds.replace({"No": 0, "Yes": 1}, inplace=True)
+
+# Standardize the data
+scaled_data = (mcdonalds.iloc[:, :11] - mcdonalds.iloc[:, :11].mean()) / mcdonalds.iloc[:, :11].std()
+
+# Perform Principal Component Analysis (PCA)
+pca = PCA()
+MD_pca = pca.fit_transform(scaled_data)
+
+# Apply K-Means Clustering
+kmeans = KMeans(n_clusters=4, random_state=1234)
+MD_k4 = kmeans.fit_predict(MD_pca)
+
+# Apply Gaussian Mixture Model
+gmm = GaussianMixture(n_components=4, random_state=1234)
+MD_gmm = gmm.fit_predict(MD_pca)
+
+# Generate Segment Profile Plot using hierarchical clustering
+MD_vclust = np.array([1, 2, 3, 4])
+barchart_data = np.array([np.mean(scaled_data[MD_k4 == i], axis=0) for i in MD_vclust])
+plt.bar(np.arange(11), barchart_data[MD_vclust.argsort()[::-1][0]])
+plt.show()
+
+# Describe Segments
+like_mean = np.array([np.mean(mcdonalds['Like.n'][MD_k4 == i]) for i in MD_vclust])
+visit_mean = np.array([np.mean(pd.to_numeric(mcdonalds['VisitFrequency'][MD_k4 == i])) for i in MD_vclust])
+female_mean = np.array([np.mean((mcdonalds['Gender'][MD_k4 == i] == 'Female') + 0) for i in MD_vclust])
+
+# Generate Segment Evaluation Plot
+plt.figure(figsize=(8, 6))
+plt.scatter(visit_mean, like_mean, s=10 * female_mean, c='blue')
+plt.xlim(2, 4.5)
+plt.ylim(-3, 3)
+
+# Annotate segments
+for i, txt in enumerate(range(1, 5)):
+    plt.text(visit_mean[i], like_mean[i], str(txt), ha='center', va='center', fontsize=10)
+
+# Add labels and title
+plt.xlabel('Visit Frequency')
+plt.ylabel('Likelihood of Liking McDonald\'s')
+plt.title('Segment Evaluation Plot')
+
+# Show the plot
+plt.show()
