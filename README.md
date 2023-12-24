@@ -1,5 +1,4 @@
 # Market-Segmentation-Analysis
-# McDonald's Fast Food Data Analysis
 
 ## Overview
 
@@ -7,7 +6,7 @@ This repository contains code for analyzing market segments based on the McDonal
 
 ## Content
 
-- **data**: Contains the McDonald's dataset (`mcdonalds.csv`).
+- **data**: Contains the McDonald's dataset
 - **code**: Includes the Python code for data analysis.
   - `mcdonalds_analysis.py`: Main Python script for data analysis.
 - **results**: Stores the output or visualizations generated during the analysis.
